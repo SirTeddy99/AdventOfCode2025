@@ -1,6 +1,7 @@
 ﻿// Advent of code 2025 - Day 5 : Cafeteria
 
-int numOfFreshIngredients = 0;
+double numOfFreshIngredients = 0;
+double numOfFreshIngredientsIDs = 0;
 
 /*string[] input =
 {
@@ -37,12 +38,46 @@ foreach (string row in input)
         ids.Add(row);
 }
 
+List<string> sortedRanges = ranges.OrderBy(r => double.Parse(r.Split('-')[0])).ToList();
+List<string> finalRanges = [sortedRanges[0]];
+int startAtIndex = 0;
+
+for (int i = 1; i < sortedRanges.Count; i++)
+{
+    for (int j = startAtIndex; j < finalRanges.Count; j++)
+    {
+        Console.WriteLine($"Compare: {finalRanges[j]} with {sortedRanges[i]}");
+
+        if (double.Parse(sortedRanges[i].Split('-')[0]) > double.Parse(finalRanges[j].Split('-')[1]))
+        {
+            finalRanges.Add(sortedRanges[i]);
+            startAtIndex = finalRanges.Count - 1;
+            break;
+        }
+
+        string tempRange = "";
+
+        if (double.Parse(sortedRanges[i].Split('-')[1]) > double.Parse(finalRanges[j].Split('-')[1]))
+        {
+            tempRange = finalRanges[j].Split('-')[0] + "-" + sortedRanges[i].Split('-')[1];
+        }
+        else
+        {
+            tempRange = finalRanges[j].Split('-')[0] + "-" + finalRanges[j].Split('-')[1];
+        }
+        finalRanges[j] = tempRange;
+    }
+}
+
+foreach (string range in finalRanges)
+{
+    numOfFreshIngredientsIDs += double.Parse(range.Split('-')[1]) - double.Parse(range.Split('-')[0]) + 1;
+}
 
 foreach (string id in ids)
 {
-    //Console.WriteLine(id);
 
-    foreach (string range in ranges)
+    foreach (string range in finalRanges)
     {
         int dashIndex = range.IndexOf('-');
         string startOfRange = range.Substring(0, dashIndex);
@@ -50,7 +85,7 @@ foreach (string id in ids)
 
         if (double.Parse(id) < double.Parse(startOfRange))
         {
-            continue;
+            break;
         }
 
         if (double.Parse(id) > double.Parse(endOfRange))
@@ -60,8 +95,8 @@ foreach (string id in ids)
 
         numOfFreshIngredients++;
         break;
-
     }
 }
 
+Console.WriteLine($"Number of fresh ingredients ids: {numOfFreshIngredientsIDs}");
 Console.WriteLine($"Number of fresh ingredients: {numOfFreshIngredients}");
